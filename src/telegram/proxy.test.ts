@@ -26,7 +26,7 @@ vi.mock("undici", () => ({
   fetch: undiciFetch,
 }));
 
-import { makeProxyFetch } from "./proxy.js";
+import { makeProxyFetch, resolveTelegramProxyUrl } from "./proxy.js";
 
 describe("makeProxyFetch", () => {
   it("uses undici fetch with ProxyAgent dispatcher", async () => {
@@ -41,5 +41,31 @@ describe("makeProxyFetch", () => {
       "https://api.telegram.org/bot123/getMe",
       expect.objectContaining({ dispatcher: getLastAgent() }),
     );
+  });
+});
+
+describe("resolveTelegramProxyUrl", () => {
+  it("prefers explicit config proxy over env", () => {
+    expect(
+      resolveTelegramProxyUrl("http://config-proxy:8080", {
+        HTTPS_PROXY: "http://env-proxy:8080",
+      }),
+    ).toBe("http://config-proxy:8080");
+  });
+
+  it("falls back to HTTPS_PROXY then HTTP_PROXY then ALL_PROXY", () => {
+    expect(resolveTelegramProxyUrl(undefined, { HTTPS_PROXY: "http://https-proxy:8080" })).toBe(
+      "http://https-proxy:8080",
+    );
+    expect(resolveTelegramProxyUrl(undefined, { HTTP_PROXY: "http://http-proxy:8080" })).toBe(
+      "http://http-proxy:8080",
+    );
+    expect(resolveTelegramProxyUrl(undefined, { ALL_PROXY: "http://all-proxy:8080" })).toBe(
+      "http://all-proxy:8080",
+    );
+  });
+
+  it("returns undefined when no proxy is configured", () => {
+    expect(resolveTelegramProxyUrl(undefined, {})).toBeUndefined();
   });
 });

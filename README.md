@@ -1,4 +1,4 @@
-# 🦞 OpenClaw — Personal AI Assistant
+# 🦞 OpenClaw — Personal Fork
 
 <p align="center">
     <picture>
@@ -22,6 +22,40 @@
 It answers you on the channels you already use (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on macOS/iOS/Android, and can render a live Canvas you control. The Gateway is just the control plane — the product is the assistant.
 
 If you want a personal, single-user assistant that feels local, fast, and always-on, this is it.
+
+## This Fork
+
+This repository is my personal OpenClaw fork, focused on improving the coding-task workflow rather than maintaining the upstream project as-is.
+
+Current focus in this fork:
+
+- Move coding UX away from legacy `/codex` and `/delegate` compatibility flows toward a single OpenClaw assistant surface.
+- Expose Codex as an internal tool that the main model can call for repo inspection, code edits, reviews, and task control.
+- Support parallel background coding tasks across Telegram forum topics, with per-topic session isolation.
+- Auto-route long-running Codex results back to the original Telegram topic when the task finishes.
+
+## Fork Highlights
+
+- `codex` internal tool wiring for model-driven coding orchestration
+- Telegram topic-scoped Codex concurrency and task tracking
+- Async completion watcher for background Codex jobs
+- Prompt and command-list cleanup to de-emphasize legacy slash-command coding flows
+- Docs updates for the Telegram forum-topic workflow
+
+## Quick Local Run
+
+Runtime: Node 22+.
+
+```bash
+pnpm install
+pnpm openclaw gateway
+```
+
+For first-time local dashboard access or when auth expires:
+
+```bash
+pnpm openclaw dashboard
+```
 
 [Website](https://openclaw.ai) · [Docs](https://docs.openclaw.ai) · [Vision](VISION.md) · [DeepWiki](https://deepwiki.com/openclaw/openclaw) · [Getting Started](https://docs.openclaw.ai/start/getting-started) · [Updating](https://docs.openclaw.ai/install/updating) · [Showcase](https://docs.openclaw.ai/start/showcase) · [FAQ](https://docs.openclaw.ai/start/faq) · [Wizard](https://docs.openclaw.ai/start/wizard) · [Nix](https://github.com/openclaw/nix-openclaw) · [Docker](https://docs.openclaw.ai/install/docker) · [Discord](https://discord.gg/clawd)
 

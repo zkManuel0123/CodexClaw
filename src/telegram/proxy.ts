@@ -1,5 +1,31 @@
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 
+export function resolveTelegramProxyUrl(
+  configuredProxyUrl?: string | null,
+  env: NodeJS.ProcessEnv = process.env,
+): string | undefined {
+  const configured = configuredProxyUrl?.trim();
+  if (configured) {
+    return configured;
+  }
+
+  for (const key of [
+    "HTTPS_PROXY",
+    "https_proxy",
+    "HTTP_PROXY",
+    "http_proxy",
+    "ALL_PROXY",
+    "all_proxy",
+  ]) {
+    const value = env[key]?.trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  return undefined;
+}
+
 export function makeProxyFetch(proxyUrl: string): typeof fetch {
   const agent = new ProxyAgent(proxyUrl);
   // undici's fetch is runtime-compatible with global fetch but the types diverge

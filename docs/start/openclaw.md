@@ -148,6 +148,18 @@ Example:
 }
 ```
 
+## Coding tasks: one assistant surface
+
+When you ask OpenClaw to inspect a repo, write code, review a diff, or run project commands, the intended UX is one conversation with OpenClaw itself.
+
+- Talk to OpenClaw in natural language.
+- Let the model decide when to use coding tools such as Codex.
+- For Telegram parallel coding work, use a forum supergroup and put each task in its own topic. Each topic is a separate session, so Codex jobs can run in parallel while still sharing the same assistant workspace and memory.
+- From any topic, you can ask OpenClaw to summarize all running or recent Codex tasks, or to focus on one topic's task only.
+- If you are setting this up on Telegram, see [Telegram](/channels/telegram) for the forum-topic pattern.
+
+In other words, Codex is an internal tool that OpenClaw can call when a task needs deeper code execution or repository work. The goal is not “switch into a separate coding bot”, but “ask OpenClaw for a coding task and let it orchestrate the right tools”.
+
 ## Sessions and memory
 
 - Session files: `~/.openclaw/agents/<agentId>/sessions/{{SessionId}}.jsonl`

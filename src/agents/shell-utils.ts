@@ -26,9 +26,17 @@ export function getShellConfig(): { shell: string; args: string[] } {
     // directly to the console via WriteConsole API, bypassing stdout pipes.
     // When Node.js spawns cmd.exe with piped stdio, these utilities produce no output.
     // PowerShell properly captures and redirects their output to stdout.
+    //
+    // Force UTF-8 output encoding so non-ASCII text (e.g. Chinese error messages)
+    // is not garbled when Node.js reads the piped stdout/stderr as UTF-8.
     return {
       shell: resolvePowerShellPath(),
-      args: ["-NoProfile", "-NonInteractive", "-Command"],
+      args: [
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;",
+      ],
     };
   }
 

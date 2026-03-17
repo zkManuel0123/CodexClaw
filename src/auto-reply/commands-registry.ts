@@ -151,7 +151,12 @@ function listNativeSpecsFromCommands(
   provider?: string,
 ): NativeCommandSpec[] {
   return commands
-    .filter((command) => command.scope !== "text" && command.nativeName)
+    .filter(
+      (command) =>
+        command.scope !== "text" &&
+        command.nativeName &&
+        command.hideFromNativeCommandLists !== true,
+    )
     .map((command) => toNativeCommandSpec(command, provider));
 }
 

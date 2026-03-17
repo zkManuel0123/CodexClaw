@@ -95,6 +95,15 @@ export type SessionEntry = {
   memoryFlushCompactionCount?: number;
   cliSessionIds?: Record<string, string>;
   claudeCliSessionId?: string;
+  /**
+    * Legacy cleanup flag from the retired Codex session-mode flow.
+    * Still read so older sessions can be normalized back to the main model path.
+   */
+  codexMode?: "active" | "background";
+    /** Per-session Codex working directory override used by the internal codex tool path. */
+  codexWorkspaceDir?: string;
+    /** Legacy cleanup flag from the retired delegate session-mode flow. */
+  delegateMode?: "active" | "background";
   label?: string;
   displayName?: string;
   channel?: string;

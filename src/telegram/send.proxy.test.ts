@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { botApi, botCtorSpy } = vi.hoisted(() => ({
   botApi: {
@@ -29,9 +29,13 @@ vi.mock("../config/config.js", async (importOriginal) => {
   };
 });
 
-vi.mock("./proxy.js", () => ({
-  makeProxyFetch,
-}));
+vi.mock("./proxy.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./proxy.js")>();
+  return {
+    ...actual,
+    makeProxyFetch,
+  };
+});
 
 vi.mock("./fetch.js", () => ({
   resolveTelegramFetch,
@@ -55,6 +59,7 @@ import { deleteMessageTelegram, reactMessageTelegram, sendMessageTelegram } from
 
 describe("telegram proxy client", () => {
   const proxyUrl = "http://proxy.test:8080";
+  const originalHttpsProxy = process.env.HTTPS_PROXY;
 
   const prepareProxyFetch = () => {
     const proxyFetch = vi.fn();
@@ -87,6 +92,14 @@ describe("telegram proxy client", () => {
     resolveTelegramFetch.mockReset();
   });
 
+  afterEach(() => {
+    if (originalHttpsProxy === undefined) {
+      delete process.env.HTTPS_PROXY;
+    } else {
+      process.env.HTTPS_PROXY = originalHttpsProxy;
+    }
+  });
+
   it("uses proxy fetch for sendMessage", async () => {
     const { fetchImpl } = prepareProxyFetch();
 
@@ -107,6 +120,18 @@ describe("telegram proxy client", () => {
     const { fetchImpl } = prepareProxyFetch();
 
     await deleteMessageTelegram("123", "456", { token: "tok", accountId: "foo" });
+
+    expectProxyClient(fetchImpl);
+  });
+
+  it("falls back to HTTPS_PROXY when account proxy is not configured", async () => {
+    const { fetchImpl } = prepareProxyFetch();
+    loadConfig.mockReturnValue({
+      channels: { telegram: { accounts: { foo: {} } } },
+    });
+    process.env.HTTPS_PROXY = proxyUrl;
+
+    await sendMessageTelegram("123", "hi", { token: "tok", accountId: "foo" });
 
     expectProxyClient(fetchImpl);
   });

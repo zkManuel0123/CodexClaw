@@ -85,6 +85,7 @@ const DEFAULT_CODEX_BACKEND: CliBackendConfig = {
   sessionMode: "existing",
   imageArg: "--image",
   imageMode: "repeat",
+  clearEnv: ["OPENAI_BASE_URL", "OPENAI_API_KEY", "OPENAI_MODEL"],
   reliability: {
     watchdog: {
       fresh: { ...CLI_FRESH_WATCHDOG_DEFAULTS },

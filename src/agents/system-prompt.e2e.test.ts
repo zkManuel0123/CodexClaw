@@ -143,6 +143,18 @@ describe("buildAgentSystemPrompt", () => {
     expect(prompt).toContain("sessions_send");
   });
 
+  it("guides coding tasks toward the codex tool instead of legacy slash-command modes", () => {
+    const prompt = buildAgentSystemPrompt({
+      workspaceDir: "/tmp/openclaw",
+      toolNames: ["codex", "exec", "read"],
+    });
+
+    expect(prompt).toContain("## Coding Tasks");
+    expect(prompt).toContain("prefer the `codex` tool as the main coding path");
+    expect(prompt).toContain("Do not ask the user to switch into `/codex` or `/delegate`");
+    expect(prompt).toContain("- codex: Run Codex as an internal coding tool");
+  });
+
   it("preserves tool casing in the prompt", () => {
     const prompt = buildAgentSystemPrompt({
       workspaceDir: "/tmp/openclaw",

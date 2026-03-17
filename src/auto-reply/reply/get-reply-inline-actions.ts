@@ -8,6 +8,12 @@ import type { SessionEntry } from "../../config/sessions.js";
 import { logVerbose } from "../../globals.js";
 import { resolveGatewayMessageChannel } from "../../utils/message-channel.js";
 import {
+  updateCodexMode,
+} from "./codex-session.js";
+import {
+  updateDelegateMode,
+} from "./delegate-session.js";
+import {
   listReservedChatSlashCommandNames,
   listSkillCommandsForWorkspace,
   resolveSkillCommandInvocation,
@@ -371,6 +377,13 @@ export async function handleInlineActions(params: {
   if (!commandResult.shouldContinue) {
     typing.cleanup();
     return { kind: "reply", reply: commandResult.reply };
+  }
+
+  // Older sessions may still carry retired Codex/delegate mode flags.
+  // Clear them opportunistically so every follow-up turn stays on the main model path.
+  if ((sessionEntry?.codexMode || sessionEntry?.delegateMode) && storePath && sessionKey) {
+    await updateCodexMode({ storePath, sessionKey, mode: undefined });
+    await updateDelegateMode({ storePath, sessionKey, mode: undefined });
   }
 
   return {

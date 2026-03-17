@@ -108,3 +108,17 @@ It is widely known, fast to iterate in, and easy to read, modify, and extend.
 
 This list is a roadmap guardrail, not a law of physics.
 Strong user demand and strong technical rationale can change it.
+
+## Coding Assistant Direction
+
+For coding tasks, OpenClaw should present a single assistant surface to the user.
+The user should talk to OpenClaw's main model, and that model should decide when to call coding tools.
+
+Current direction:
+
+- `/codex` and `/delegate` should not be part of the normal user-facing coding UX.
+- Codex should be exposed as an internal OpenClaw tool, so the main model can invoke it when a task needs repo edits, shell execution, or code review.
+- Control-layer replies should shrink over time; normal task framing, delegation, and result narration should come from the model, not from hardcoded controller templates.
+- Deterministic controls such as stop, poll, workspace selection, health, and repair can remain as lower-level plumbing while the model-facing tool path matures.
+
+This keeps orchestration in one place and avoids building a second user-facing coding assistant beside OpenClaw itself.

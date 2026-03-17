@@ -1,4 +1,4 @@
-import { resolveSessionAgentId } from "../../agents/agent-scope.js";
+import { resolveAgentConfig, resolveSessionAgentId } from "../../agents/agent-scope.js";
 import { getFinishedSession, getSession, markExited } from "../../agents/bash-process-registry.js";
 import { createExecTool } from "../../agents/bash-tools.js";
 import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
@@ -15,7 +15,7 @@ const CHAT_BASH_SCOPE_KEY = "chat:bash";
 const DEFAULT_FOREGROUND_MS = 2000;
 const MAX_FOREGROUND_MS = 30_000;
 
-type BashRequest =
+export type BashRequest =
   | { action: "help" }
   | { action: "run"; command: string }
   | { action: "poll"; sessionId?: string }
@@ -174,6 +174,27 @@ function buildUsageReply(): ReplyPayload {
   };
 }
 
+function resolveBashExecDefaults(params: {
+  cfg: OpenClawConfig;
+  agentId?: string;
+}) {
+  const globalExec = params.cfg.tools?.exec;
+  const agentExec = params.agentId
+    ? resolveAgentConfig(params.cfg, params.agentId)?.tools?.exec
+    : undefined;
+  return {
+    host: agentExec?.host ?? globalExec?.host,
+    security: agentExec?.security ?? globalExec?.security,
+    ask: agentExec?.ask ?? globalExec?.ask,
+    node: agentExec?.node ?? globalExec?.node,
+    pathPrepend: agentExec?.pathPrepend ?? globalExec?.pathPrepend,
+    safeBins: agentExec?.safeBins ?? globalExec?.safeBins,
+    approvalRunningNoticeMs:
+      agentExec?.approvalRunningNoticeMs ?? globalExec?.approvalRunningNoticeMs,
+    cwd: agentExec?.cwd ?? globalExec?.cwd,
+  };
+}
+
 export async function handleBashChatCommand(params: {
   ctx: MsgContext;
   cfg: OpenClawConfig;
@@ -224,6 +245,60 @@ export async function handleBashChatCommand(params: {
     return { text: "⚠️ Unrecognized bash request." };
   }
 
+  return handleParsedBashChatCommand({
+    ...params,
+    agentId,
+    request,
+  });
+}
+
+export async function handleParsedBashChatCommand(params: {
+  ctx: MsgContext;
+  cfg: OpenClawConfig;
+  agentId?: string;
+  sessionKey: string;
+  isGroup: boolean;
+  elevated: {
+    enabled: boolean;
+    allowed: boolean;
+    failures: Array<{ gate: string; key: string }>;
+  };
+  request: BashRequest;
+}): Promise<ReplyPayload> {
+  if (params.cfg.commands?.bash !== true) {
+    return {
+      text: "⚠️ bash is disabled. Set commands.bash=true to enable. Docs: https://docs.openclaw.ai/tools/slash-commands#config",
+    };
+  }
+
+  const agentId =
+    params.agentId ??
+    resolveSessionAgentId({
+      sessionKey: params.sessionKey,
+      config: params.cfg,
+    });
+
+  // poll/stop/help are read-only control actions — allow without elevated permissions
+  const isControlAction =
+    params.request.action === "poll" ||
+    params.request.action === "stop" ||
+    params.request.action === "help";
+
+  if (!isControlAction && (!params.elevated.enabled || !params.elevated.allowed)) {
+    const runtimeSandboxed = resolveSandboxRuntimeStatus({
+      cfg: params.cfg,
+      sessionKey: params.ctx.SessionKey,
+    }).sandboxed;
+    return {
+      text: formatElevatedUnavailableMessage({
+        runtimeSandboxed,
+        failures: params.elevated.failures,
+        sessionKey: params.ctx.SessionKey,
+      }),
+    };
+  }
+
+  const request = params.request;
   const liveJob = ensureActiveJobState();
 
   if (request.action === "help") {
@@ -329,10 +404,22 @@ export async function handleBashChatCommand(params: {
   try {
     const foregroundMs = resolveForegroundMs(params.cfg);
     const shouldBackgroundImmediately = foregroundMs <= 0;
+    const execDefaults = resolveBashExecDefaults({
+      cfg: params.cfg,
+      agentId,
+    });
     const timeoutSec = params.cfg.tools?.exec?.timeoutSec;
     const notifyOnExit = params.cfg.tools?.exec?.notifyOnExit;
     const notifyOnExitEmptySuccess = params.cfg.tools?.exec?.notifyOnExitEmptySuccess;
     const execTool = createExecTool({
+      host: execDefaults.host,
+      security: execDefaults.security,
+      ask: execDefaults.ask,
+      node: execDefaults.node,
+      pathPrepend: execDefaults.pathPrepend,
+      safeBins: execDefaults.safeBins,
+      approvalRunningNoticeMs: execDefaults.approvalRunningNoticeMs,
+      cwd: execDefaults.cwd,
       scopeKey: CHAT_BASH_SCOPE_KEY,
       allowBackground: true,
       timeoutSec,

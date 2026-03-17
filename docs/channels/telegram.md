@@ -218,6 +218,32 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 - Long polling uses grammY runner with per-chat/per-thread sequencing. Overall runner sink concurrency uses `agents.defaults.maxConcurrent`.
 - Telegram Bot API has no read-receipt support (`sendReadReceipts` does not apply).
 
+## Parallel coding with forum topics
+
+If you want one OpenClaw assistant to coordinate multiple background coding tasks on Telegram, the best fit is a **forum supergroup**.
+
+- Put each long-running coding task in its own forum topic.
+- Each topic becomes its own session, so background Codex jobs can run in parallel across topics.
+- Replies stay routed to the original topic because OpenClaw keeps `message_thread_id` on outbound sends.
+- The assistant surface is still singular: users talk to OpenClaw, and OpenClaw decides when to call Codex.
+
+Recommended pattern:
+
+- Topic A: "Use codex to inspect D:\\paperclaw and summarize the architecture."
+- Topic B: "Use codex to review the failing tests in this repo."
+- Topic C: "Use codex to add a utility function in src/utils."
+
+From any topic, you can also ask OpenClaw to act like a coordinator instead of focusing only on the current task.
+
+Examples:
+
+- "Summarize all running Codex tasks."
+- "Which Telegram topic still has an active Codex job?"
+- "Only show me the result from the paperclaw task."
+- "Stop the Codex task running in the paperclaw topic."
+
+This gives you one assistant with shared memory and orchestration, instead of multiple separate coding bots.
+
 ## Feature reference
 
 <AccordionGroup>

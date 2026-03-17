@@ -12,6 +12,8 @@ type DefineChatCommandInput = {
   key: string;
   nativeName?: string;
   description: string;
+  hideFromCommandLists?: boolean;
+  hideFromNativeCommandLists?: boolean;
   args?: ChatCommandDefinition["args"];
   argsParsing?: ChatCommandDefinition["argsParsing"];
   formatArgs?: ChatCommandDefinition["formatArgs"];
@@ -35,6 +37,8 @@ function defineChatCommand(command: DefineChatCommandInput): ChatCommandDefiniti
     key: command.key,
     nativeName: command.nativeName,
     description: command.description,
+    hideFromCommandLists: command.hideFromCommandLists,
+    hideFromNativeCommandLists: command.hideFromNativeCommandLists,
     acceptsArgs,
     args: command.args,
     argsParsing,

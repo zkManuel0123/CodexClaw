@@ -35,6 +35,8 @@ describe("commands registry", () => {
 
   it("exposes native specs", () => {
     const specs = listNativeCommandSpecs();
+    expect(specs.find((spec) => spec.name === "codex")).toBeFalsy();
+    expect(specs.find((spec) => spec.name === "delegate")).toBeFalsy();
     expect(specs.find((spec) => spec.name === "help")).toBeTruthy();
     expect(specs.find((spec) => spec.name === "stop")).toBeTruthy();
     expect(specs.find((spec) => spec.name === "skill")).toBeTruthy();
@@ -56,8 +58,9 @@ describe("commands registry", () => {
     expect(enabled.find((spec) => spec.key === "debug")).toBeTruthy();
 
     const nativeDisabled = listNativeCommandSpecsForConfig({
-      commands: { config: false, debug: false, native: true },
+      commands: { bash: false, config: false, debug: false, native: true },
     });
+    expect(nativeDisabled.find((spec) => spec.name === "codex")).toBeFalsy();
     expect(nativeDisabled.find((spec) => spec.name === "config")).toBeFalsy();
     expect(nativeDisabled.find((spec) => spec.name === "debug")).toBeFalsy();
   });
@@ -102,6 +105,8 @@ describe("commands registry", () => {
     expect(detection.exact.has("/compact")).toBe(true);
     expect(detection.exact.has("/whoami")).toBe(true);
     expect(detection.exact.has("/id")).toBe(true);
+    expect(detection.exact.has("/codex")).toBe(false);
+    expect(detection.exact.has("/delegate")).toBe(false);
     for (const command of listChatCommands()) {
       for (const alias of command.textAliases) {
         expect(detection.exact.has(alias.toLowerCase())).toBe(true);

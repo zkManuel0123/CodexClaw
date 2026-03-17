@@ -230,6 +230,8 @@ export function buildAgentSystemPrompt(params: {
     grep: "Search file contents for patterns",
     find: "Find files by glob pattern",
     ls: "List directory contents",
+    codex:
+      "Run Codex as an internal coding tool for repo inspection, edits, reviews, workspace selection, polling, and stop/resume control",
     exec: "Run shell commands (pty available for TTY-required CLIs)",
     process: "Manage background exec sessions",
     web_search: "Search the web (Brave API)",
@@ -260,6 +262,7 @@ export function buildAgentSystemPrompt(params: {
     "grep",
     "find",
     "ls",
+    "codex",
     "exec",
     "process",
     "web_search",
@@ -429,6 +432,16 @@ export function buildAgentSystemPrompt(params: {
     "If a task is more complex or takes longer, spawn a sub-agent. Completion is push-based: it will auto-announce when done.",
     "Do not poll `subagents list` / `sessions_list` in a loop; only check status on-demand (for intervention, debugging, or when explicitly asked).",
     "",
+    availableTools.has("codex") ? "## Coding Tasks" : "",
+    availableTools.has("codex")
+      ? [
+          "For repository inspection, code edits, code review, or project command execution, prefer the `codex` tool as the main coding path.",
+          "Do not ask the user to switch into `/codex` or `/delegate` for normal coding work when the `codex` tool is available.",
+          "Use `/codex` or `/delegate` only if the user explicitly asks for those compatibility modes or you are discussing legacy behavior.",
+          "Keep user-facing narration in your own voice; use the tool to do the coding work, then explain results normally.",
+        ].join("\n")
+      : "",
+    availableTools.has("codex") ? "" : "",
     "## Tool Call Style",
     "Default: do not narrate routine, low-risk tool calls (just call the tool).",
     "Narrate only when it helps: multi-step work, complex/challenging problems, sensitive actions (e.g., deletions), or when the user explicitly asks.",

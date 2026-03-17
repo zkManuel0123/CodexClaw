@@ -726,7 +726,9 @@ function buildCommandItems(
   commands: ChatCommandDefinition[],
   pluginCommands: ReturnType<typeof listPluginCommands>,
 ): CommandsListItem[] {
-  const grouped = groupCommandsByCategory(commands);
+  const grouped = groupCommandsByCategory(
+    commands.filter((command) => command.hideFromCommandLists !== true),
+  );
   const items: CommandsListItem[] = [];
 
   for (const category of CATEGORY_ORDER) {

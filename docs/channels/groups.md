@@ -51,6 +51,7 @@ If you want...
 
 - Group sessions use `agent:<agentId>:<channel>:group:<id>` session keys (rooms/channels use `agent:<agentId>:<channel>:channel:<id>`).
 - Telegram forum topics add `:topic:<threadId>` to the group id so each topic has its own session.
+- For long-running Telegram coding work, treating each forum topic as one task lane works well: OpenClaw keeps the topics isolated at the session level, while the same assistant can still summarize or compare tasks across topics.
 - Direct chats use the main session (or per-sender if configured).
 - Heartbeats are skipped for group sessions.
 

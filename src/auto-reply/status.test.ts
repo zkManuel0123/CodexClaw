@@ -591,6 +591,8 @@ describe("buildCommandsMessage", () => {
     expect(text).toContain("/skill - Run a skill by name.");
     expect(text).toContain("/think (/thinking, /t) - Set thinking level.");
     expect(text).toContain("/compact - Compact the session context.");
+    expect(text).not.toContain("/codex");
+    expect(text).not.toContain("/delegate");
     expect(text).not.toContain("/config");
     expect(text).not.toContain("/debug");
   });
@@ -636,6 +638,8 @@ describe("buildCommandsMessagePaginated", () => {
     expect(result.text).toContain("ℹ️ Commands (1/");
     expect(result.text).toContain("Session");
     expect(result.text).toContain("/stop - Stop the current run.");
+    expect(result.text).not.toContain("/codex");
+    expect(result.text).not.toContain("/delegate");
   });
 
   it("includes plugin commands in the paginated list", () => {

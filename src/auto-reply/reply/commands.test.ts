@@ -474,6 +474,30 @@ describe("handleCommands /config configWrites gating", () => {
 });
 
 describe("handleCommands bash alias", () => {
+  it("does not treat /codex as a built-in command anymore", async () => {
+    resetBashChatCommandForTests();
+    const cfg = {
+      commands: { bash: true, text: true },
+      whatsapp: { allowFrom: ["*"] },
+    } as OpenClawConfig;
+    const params = buildParams("/codex", cfg);
+    const result = await handleCommands(params);
+    expect(result.shouldContinue).toBe(true);
+    expect(result.reply).toBeUndefined();
+  });
+
+  it("does not route /codex poll through a compatibility command handler", async () => {
+    resetBashChatCommandForTests();
+    const cfg = {
+      commands: { bash: true, text: true },
+      whatsapp: { allowFrom: ["*"] },
+    } as OpenClawConfig;
+    const params = buildParams("/codex poll", cfg);
+    const result = await handleCommands(params);
+    expect(result.shouldContinue).toBe(true);
+    expect(result.reply).toBeUndefined();
+  });
+
   it("routes !poll through the /bash handler", async () => {
     resetBashChatCommandForTests();
     const cfg = {

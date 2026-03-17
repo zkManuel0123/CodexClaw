@@ -54,6 +54,8 @@ export type ChatCommandDefinition = {
   nativeName?: string;
   description: string;
   textAliases: string[];
+  hideFromCommandLists?: boolean;
+  hideFromNativeCommandLists?: boolean;
   acceptsArgs?: boolean;
   args?: CommandArgDefinition[];
   argsParsing?: CommandArgsParsing;

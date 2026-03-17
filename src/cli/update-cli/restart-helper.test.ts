@@ -206,6 +206,7 @@ describe("restart-helper", () => {
       expect(spawn).toHaveBeenCalledWith("cmd.exe", ["/c", scriptPath], {
         detached: true,
         stdio: "ignore",
+        windowsHide: true,
       });
       expect(mockChild.unref).toHaveBeenCalled();
     });
