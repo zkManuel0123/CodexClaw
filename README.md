@@ -1,5 +1,11 @@
 # CodexClaw
 
+<p align="left">
+    <img src="https://img.shields.io/badge/Coding--First-1f6feb?style=flat-square" alt="Coding First">
+    <img src="https://img.shields.io/badge/Codex-Orchestrated-0f766e?style=flat-square" alt="Codex Orchestrated">
+    <img src="https://img.shields.io/badge/Telegram-Topic%20Aware-2563eb?style=flat-square" alt="Telegram Topic Aware">
+</p>
+
 > Coding-first AI assistant fork focused on internal Codex orchestration and Telegram topic-based parallel task execution.
 
 CodexClaw is my personal coding-first fork of OpenClaw.
@@ -28,10 +34,25 @@ It is a narrower fork centered on:
 ## What Is Different In This Fork
 
 - Codex is treated as an internal tool rather than a separate user-facing mode.
-- Legacy `/codex` and `/delegate` paths are de-emphasized for normal use.
 - Telegram forum topics can act as isolated lanes for parallel background coding work.
 - Finished Codex jobs can route results back to the original Telegram topic automatically.
 - The assistant can summarize and coordinate work across multiple running tasks.
+
+## Why This Is Better Than A Plain Codex Skill
+
+OpenClaw can also carry a simple Codex skill file such as [skills/codex/SKILL.md](skills/codex/SKILL.md), but that approach is fundamentally just a thin wrapper around a CLI command.
+
+That kind of skill is useful for basic invocation, but CodexClaw is aiming at a higher-level product behavior.
+
+Advantages of the CodexClaw approach:
+
+- It is orchestration-first, not command-wrapper-first. The assistant decides when to invoke Codex instead of making the user think in terms of raw tool entry points.
+- It is session-aware and topic-aware. Telegram forum topics can act as separate task lanes with isolated background jobs.
+- It supports asynchronous completion delivery. Long-running Codex jobs can finish later and push results back to the original chat thread.
+- It supports cross-task coordination. The assistant can summarize, compare, or stop active tasks across sessions/topics.
+- It produces a cleaner user experience. Users talk to one assistant surface instead of manually switching between different coding control modes.
+
+In short, a plain Codex skill helps execute Codex. CodexClaw is trying to turn Codex into a coordinated assistant capability.
 
 ## Core Workflow
 
