@@ -1,0 +1,97 @@
+日常启动
+
+1. 切换 Node 版本：nvm use 24.13.1
+2. 启动 OpenClaw gateway：pnpm openclaw gateway run
+3. 第一次打开控制台，或网页认证失效时，执行：pnpm openclaw dashboard
+4. 如果之前的页面还连得上，一般直接打开 http://127.0.0.1:18789/ 就行，不一定每次都要跑 dashboard
+5. 结束进程用：taskkill /PID <pid> /F
+
+dashboard 是干嘛的
+
+- `pnpm openclaw dashboard` 会生成一个带认证 token 的本地链接
+- 它会自动复制链接并尝试打开浏览器
+- 当页面出现 `Disconnected from gateway`、`unauthorized`、`device token mismatch` 这类提示时，优先重新跑一次这个命令
+
+开发模式
+
+- 如果你是想用开发模式启动，也可以用：pnpm dev
+
+停止
+
+- 前台窗口里按 Ctrl+C 即可
+
+如果启动时报 already running / Port 18789 is already in use
+
+- 这通常不是 OpenClaw 坏了，而是你已经启动过一个 gateway 进程了。
+- 先检查状态：`pnpm openclaw gateway status`
+- 如果只是想继续用，直接打开 `http://127.0.0.1:18789/` 或重新执行 `pnpm openclaw dashboard`
+- 如果想重启，先结束旧进程再启动：`taskkill /PID <pid> /F`
+- 结束后重新运行：`pnpm openclaw gateway run`
+
+一个常见现象
+
+- `pnpm openclaw gateway run` 报错退出，不代表没启动成功过。
+- 很多时候是因为上一次启动留下的进程还在占着 18789 端口。
+- 看到 `gateway already running`、`Port 18789 is already in use` 时，优先按上面的步骤处理。
+
+docs/reference/templates 是干嘛的
+
+- 这里放的是 OpenClaw 的“模板文件”，用来初始化一个新的助手工作区
+- 它们不是程序必须运行的核心代码，更像是默认说明书、人格设定模板、记忆模板
+- 当某个新工作区第一次启动时，OpenClaw 可能会参考这些模板来决定如何开场、记录身份、记录用户信息
+
+BOOTSTRAP.md 是干嘛的
+
+- `BOOTSTRAP.md` 是“首次启动引导模板”
+- 它会让新助手先和用户确认：名字、风格、emoji、怎么称呼用户
+- 所以你之前看到的“我刚上线，我是谁？你是谁？”就是它触发的，不是报错
+- 这一步通常只用于第一次建立助手身份
+
+其他几个常见模板
+
+- `AGENTS.md`：工作区总规则，告诉助手每次会话先读什么、怎么记忆、什么情况下该谨慎
+- `IDENTITY.md`：助手自己的身份档案，比如名字、风格、emoji
+- `USER.md`：用户档案，比如怎么称呼你、时区、偏好
+- `SOUL.md`：助手的长期行为原则和风格
+- `TOOLS.md`：本地环境备注，比如设备名、SSH 主机、常用工具说明
+- `HEARTBEAT.md`：定时检查任务说明；留空时通常表示不做周期巡检
+- `BOOT.md`：启动后立即执行的短任务清单
+
+你现在这套启动的关键点
+
+- `pnpm openclaw gateway run` = 启动后端服务
+- `pnpm openclaw dashboard` = 打开并登录前端控制台
+- `BOOTSTRAP.md` = 首次人格引导，不是错误
+
+Telegram 里怎么调用 Codex
+
+推荐方式：直接用自然语言，不要把 `/codex` 当作主入口
+
+1. 直接给 OpenClaw 发任务，例如：
+   - "用 codex 看看 D:\paperclaw 这个仓库是干什么的"
+   - "帮我检查这个项目里的测试为什么失败"
+   - "在 src/utils 里加一个日期格式化函数"
+2. OpenClaw 会自己决定是否调用 Codex。
+3. 如果任务较长，OpenClaw 会先告诉你任务已经开始，之后在完成时主动把结果推回聊天窗口。
+4. 你面对的始终是 OpenClaw 本身；Codex 是它内部调度的编程工具，不是你要单独切进去操作的第二个 bot。
+
+如果你想在 Telegram 里并行跑多个 Codex 任务
+
+1. 最适合的形态是：一个 Telegram forum 超级群 + 多个 topic。
+2. 每个 topic 可以当成一个独立任务窗口。
+3. 不同 topic 是不同会话，所以可以各自启动自己的 Codex 后台任务。
+4. 但这些 topic 背后仍然是同一个 OpenClaw 助手，所以你可以在任意 topic 里问：
+   - "把现在所有 Codex 任务的进度汇总一下"
+   - "只告诉我 paperclaw 那个任务现在到哪了"
+   - "停止 42 号 topic 里的那个 Codex 任务"
+
+当前更准确的理解方式
+
+- 不是“我在 Telegram 里直接操作多个 Codex”。
+- 而是“我在多个 topic 里和同一个 OpenClaw 管家对话，由它去并行调度多个 Codex”。
+
+如果你想直接跑原始命令，也还可以用
+
+- `/bash codex exec --full-auto -C D:\openclaw "你的任务"`
+- `/bash poll`
+- `/bash stop`
